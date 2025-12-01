@@ -8,6 +8,12 @@ import (
 	"os"
 )
 
+var (
+	Version   = "dev"
+	BuildDate = "unknown"
+	GitCommit = "unknown"
+)
+
 type Response struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
@@ -41,12 +47,22 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func versionHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"version":    Version,
+		"build_date": BuildDate,
+		"git_commit": GitCommit,
+	})
+}
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
+	http.HandleFunc("/version", versionHandler)
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/info", infoHandler)
