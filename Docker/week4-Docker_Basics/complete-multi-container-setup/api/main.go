@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -47,9 +48,17 @@ func initDB() {
 	}
 
 	// Test Connection
-	err = db.Ping()
+	for i := 0; i < 10; i++ {
+		err = db.Ping()
+		if err == nil {
+			break
+		}
+		log.Println("Database not ready, retrying...")
+		time.Sleep(2 * time.Second)
+	}
+
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Could not connect to database:", err)
 	}
 
 	log.Println("Connected to database successfully")
